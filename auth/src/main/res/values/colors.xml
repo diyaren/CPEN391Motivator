@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="authui_colorPrimary">#3E50B4</color>
+    <color name="authui_colorPrimaryDark">#2F3E9E</color>
+    <color name="authui_colorAccent">#c1c1c1</color>
+    <color name="authui_inputTextColor">#FFFFFF</color>
+    <color name="authui_inputTextColorDark">#000000</color>
+
+    <color name="errorColor">#4de0ed</color>
+    <color name="linkColor">#4285F4</color>
+</resources>

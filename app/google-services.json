@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "707373488530",
+    "firebase_url": "https://motivator-161403.firebaseio.com",
+    "project_id": "motivator-161403",
+    "storage_bucket": "motivator-161403.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:707373488530:android:91eecf4730fc920b",
+        "android_client_info": {
+          "package_name": "com.firebase.uidemo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "707373488530-re6kasdopqbrfavbjr4u5473opjqiuk3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9Gywz6ztAXpMZRXrudMYvnPg8gDkIZcs"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
