@@ -13,11 +13,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.firebase.uidemo.R;
 
 public class NavigationPage extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    TextView quoteText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +29,10 @@ public class NavigationPage extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        quotesProvider.addQuotes();
+        quoteText = (TextView)findViewById(R.id.motivationQuote);
+        quoteText.setText("WELCOME TO THE MOTTIVATOR");
+        /*
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -34,7 +41,7 @@ public class NavigationPage extends AppCompatActivity
                         .setAction("Action", null).show();
             }
         });
-
+*/
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this,
@@ -58,6 +65,12 @@ public class NavigationPage extends AppCompatActivity
             super.onBackPressed();
         }
     }
+
+
+    public void changeQuote(View view){
+        quoteText.setText(quotesProvider.getQuotes());
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

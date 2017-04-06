@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -9,4 +9,29 @@
     tools:context="com.firebase.uidemo.auth.NavigationPage"
     tools:showIn="@layout/app_bar_navigation_page">
 
-</android.support.constraint.ConstraintLayout>
+    <TextView
+        android:id="@+id/motivationQuote"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="TextView"
+        tools:layout_editor_absoluteX="162dp"
+        android:textSize="30dp"
+        android:textColor="#ffffff"
+        tools:layout_editor_absoluteY="246dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="136dp" />
+
+    <Button
+        android:id="@+id/changeQuoteButton"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/button_next"
+        android:layout_marginBottom="29dp"
+        android:layout_marginRight="20dp"
+        android:onClick="changeQuote"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true" />
+
+
+</RelativeLayout>
