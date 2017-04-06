@@ -31,7 +31,7 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile "com.android.support:design:$supportLibraryVersion"
     //added for google map
-    
+
 
     compile project(path: ':auth')
     compile project(path: ':database')

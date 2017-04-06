@@ -94,6 +94,8 @@ public class NavigationPage extends AppCompatActivity
             Intent B = new Intent (NavigationPage.this, MapsActivity.class);
             startActivity(B);
         } else if (id == R.id.youtube) {
+            Intent C = new Intent(NavigationPage.this, youtubeActivity.class);
+            startActivity(C);
 
         } else if (id == R.id.setting) {
             Intent D = new Intent (NavigationPage.this, SettingsActivity.class);

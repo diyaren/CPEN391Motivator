@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Motivator</string>
+    <string name="title_activity_player">PlayerActivity</string>
 
     <string name="name_chat">Lets Chat</string>
     <string name="name_auth_ui">Sign In</string>
@@ -10,7 +11,7 @@
     <string name="desc_image">Download or upload image</string>
 
     <!-- strings for Auth UI demo activities -->
-    <eat-comment/>
+    <eat-comment />
     <string name="launch_title">FirebaseUI Auth Demo</string>
     <string name="sign_in">Start</string>
     <string name="green_theme">Green Theme</string>
@@ -136,7 +137,7 @@
         <item>3</item>
     </string-array>
 
-    <string-array name="multi_select_list_preference_default_value"/>
+    <string-array name="multi_select_list_preference_default_value" />
 
     <string name="pref_title_system_sync_settings">System sync settings</string>
 
