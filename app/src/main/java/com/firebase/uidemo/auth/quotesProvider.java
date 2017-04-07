@@ -7,6 +7,11 @@ import java.util.Random;
  * Created by Navjashan on 06/04/2017.
  */
 
+
+
+
+
+
 public class quotesProvider {
 
     public static ArrayList<String> quotes = new ArrayList<String>();
@@ -39,5 +44,26 @@ public class quotesProvider {
         Random rand = new Random();
         return quotes.get(rand.nextInt(quotes.size() - 1));
     }
-
+//    public static String timer (){
+//        Date current = new Date();
+//        Date endTime = new Date();
+//        long difference = endTime.getTime()-current.getTime();
+//        new CountDownTimer(difference,1000){
+//
+//            @Override
+//            public void onTick(long millisUntilFinished) {
+//                long days = TimeUnit.MILLISECONDS.toDays(millisUntilFinished);
+//                millisUntilFinished -= TimeUnit.DAYS.toMillis(days);
+//            }
+//
+//            @Override
+//            public void onFinish() {
+//                System.out.println("done");
+//            }
+//        }.start();
+//
+//        String timer = String.valueOf();
+//        return timer;
+//
+//    }
 }

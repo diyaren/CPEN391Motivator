@@ -11,22 +11,26 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.InputFilter;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.firebase.uidemo.db.TaskDBHelper;
 import com.firebase.uidemo.R;
+import com.firebase.uidemo.db.TaskDBHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,9 +39,21 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 public class TodoActivity extends AppCompatActivity {
+    private Handler mHandler; // handler that gets info from Bluetooth service
 
-    private static final String TAG = "TodoActivity";
-    public TaskDBHelper mHelper;
+    // Defines several constants used when transmitting messages between the
+    // service and the UI.
+    private interface MessageConstants {
+        public static final int MESSAGE_READ = 0;
+        public static final int MESSAGE_WRITE = 1;
+        public static final int MESSAGE_TOAST = 2;
+
+        // ... (Add other message types here as needed.)
+    }
+
+
+    private static final String TAG = "MainActivity";
+    private TaskDBHelper mHelper;
     private ListView mTaskListView;
     private ArrayAdapter<String> mAdapter;
     ArrayList<String> taskListBluetooth = new ArrayList<>();
@@ -47,6 +63,7 @@ public class TodoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_todo);
+
         mHelper = new TaskDBHelper(this);
         mTaskListView = (ListView) findViewById(R.id.list_todo);
 
@@ -54,22 +71,21 @@ public class TodoActivity extends AppCompatActivity {
         Cursor cursor = db.query(TaskContract.TaskEntry.TABLE,
                                  new String[]{TaskContract.TaskEntry._ID, TaskContract.TaskEntry.COL_TASK_TITLE},
                                  null, null, null, null, null);
-        while(cursor.moveToNext()){
+        while(cursor.moveToNext()) {
             int idx = cursor.getColumnIndex(TaskContract.TaskEntry.COL_TASK_TITLE);
             Log.d(TAG, "Task : cursor.getString(idx)");
         }
 
         // get the context for the application
         context = getApplicationContext();
+        Toast.makeText(context, "starting!", Toast.LENGTH_SHORT).show();
 
         // This call returns a handle to the one bluetooth device within your Android device
         myBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         // check to see if your android device even has a bluetooth device !!!!,
         if (myBluetoothAdapter == null) {
-            Toast toast = Toast.makeText(context, "starting !!", Toast.LENGTH_LONG);
-            toast = Toast.makeText(context, "No Bluetooth !!", Toast.LENGTH_LONG);
-            toast.show();
+            Toast.makeText(context, "No Bluetooth !!", Toast.LENGTH_LONG).show();
             finish();
 
             // if no bluetooth device on this tablet don’t go any further.
@@ -91,13 +107,16 @@ public class TodoActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         registerReceiver (mReceiver, filter);
 
+        System.out.println("test");
+
         myBluetoothAdapter.startDiscovery();
 
         cursor.close();
         db.close();
         updateUI();
 
-
+        // set the adapter view for list view above
+        mTaskListView.setAdapter(mAdapter);
     }
 
     @Override
@@ -112,7 +131,7 @@ public class TodoActivity extends AppCompatActivity {
             case R.id.action_add_task:
                 Log.d(TAG, "Add a new task");
                 final EditText taskEditText = new EditText(this);
-                int maxLength = 27;
+                int maxLength = 38;
                 taskEditText.setFilters(new InputFilter[] {new InputFilter.LengthFilter(maxLength)});
                 AlertDialog dialog = new AlertDialog.Builder(this)
                         .setTitle("Add a new task")
@@ -122,6 +141,8 @@ public class TodoActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 String task = String.valueOf(taskEditText.getText());
+                                // Add the separators for the time and address
+                                task+="\n\tN/A\n\t \t";
                                 SQLiteDatabase db = mHelper.getWritableDatabase();
                                 ContentValues values = new ContentValues();
                                 values.put(TaskContract.TaskEntry.COL_TASK_TITLE, task);
@@ -179,6 +200,7 @@ public class TodoActivity extends AppCompatActivity {
         View parent = (View) view.getParent();
         TextView taskTextView = (TextView) parent.findViewById(R.id.task_title);
         String task = String.valueOf(taskTextView.getText());
+
         SQLiteDatabase db = mHelper.getWritableDatabase();
         db.delete(TaskContract.TaskEntry.TABLE,
                   TaskContract.TaskEntry.COL_TASK_TITLE + " = ?",
@@ -187,7 +209,97 @@ public class TodoActivity extends AppCompatActivity {
         updateUI();
     }
 
+    // Allows the time to be set via dialog box
+    public void setTime(View view) {
+        AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
 
+        final View parent = (View) view.getParent();
+
+        LayoutInflater inflater = getLayoutInflater();
+        final View v_iew= inflater.inflate(R.layout.set_time_layout, null);
+        final TimePicker tp = (TimePicker) v_iew.findViewById(R.id.timePicker);
+        final DatePicker dp = (DatePicker) v_iew.findViewById(R.id.datePicker);
+        final TextView tv = (TextView) parent.findViewById(R.id.task_title);
+        final String[] info = tv.getText().toString().split("\t");
+        builder1.setView(v_iew);
+
+        deleteTask(view);
+
+        builder1.setNegativeButton("Remove", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                String entry = (info[0] + "\tN/A\n\t" + info[2] + "\t");
+                tv.setText(entry);
+
+                //Add
+                SQLiteDatabase db = mHelper.getWritableDatabase();
+                ContentValues values = new ContentValues();
+                values.put(TaskContract.TaskEntry.COL_TASK_TITLE, entry);
+                db.insertWithOnConflict(TaskContract.TaskEntry.TABLE,
+                                        null,
+                                        values,
+                                        SQLiteDatabase.CONFLICT_REPLACE);
+                db.close();
+                updateUI();
+            }
+        });
+
+        builder1.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                String month = "";
+                switch(dp.getMonth()) {
+                    case 1: month = "Jan";
+                        break;
+                    case 2: month = "Feb";
+                        break;
+                    case 3: month = "Mar";
+                        break;
+                    case 4: month = "Apr";
+                        break;
+                    case 5: month = "May";
+                        break;
+                    case 6: month = "Jun";
+                        break;
+                    case 7: month = "Jul";
+                        break;
+                    case 8: month = "Aug";
+                        break;
+                    case 9: month = "Sep";
+                        break;
+                    case 10: month = "Oct";
+                        break;
+                    case 11: month = "Nov";
+                        break;
+                    case 12: month = "Dec";
+                        break;
+                }
+                // Using deprecated function as our device does not have the current API
+                String dueTime;
+                if (tp.getCurrentMinute() < 10)
+                    dueTime = tp.getCurrentHour() + ":0" + tp.getCurrentMinute();
+                else
+                    dueTime = tp.getCurrentHour() + ":" + tp.getCurrentMinute();
+                String dueDate = month + " " + dp.getDayOfMonth() + ", " + dp.getYear();
+
+                String entry = (info[0] + "\t" + dueDate + "   " + dueTime + "\n\t" + info[2] + "\t");
+                tv.setText(entry);
+
+                //Add
+                SQLiteDatabase db = mHelper.getWritableDatabase();
+                ContentValues values = new ContentValues();
+                values.put(TaskContract.TaskEntry.COL_TASK_TITLE, entry);
+                db.insertWithOnConflict(TaskContract.TaskEntry.TABLE,
+                                        null,
+                                        values,
+                                        SQLiteDatabase.CONFLICT_REPLACE);
+                db.close();
+                updateUI();
+            }
+        });
+
+        AlertDialog FileSaveDialog = builder1.create();
+
+        FileSaveDialog.show();
+    }
     //SAM COMES IN
 
     // we want to display all paired devices to the user in a ListView so they can choose a device
@@ -221,12 +333,10 @@ public class TodoActivity extends AppCompatActivity {
                 // Add the name and address to the custom array adapter to show in a ListView
                 String theDevice = new String(deviceName + "\nMAC Address = " + deviceHardwareAddress);
 
-                //Toast.makeText(context, theDevice, Toast.LENGTH_LONG).show();
-                if(deviceName.equals("2017group16")) {
+                // Connect to the device (if not already connected)
+                if(deviceName.equals("2017group16")){ //&& !mmSocket.isConnected()) {
                     CreateSerialBluetoothDeviceSocket(newDevice);
                     ConnectToSerialBlueToothDevice();
-
-
                 }
                 // notify array adaptor that the contents of String Array have changed
                 // TODO: This needs private MyCustomArrayAdaptor myDiscoveredArrayAdapter
@@ -328,15 +438,20 @@ public class TodoActivity extends AppCompatActivity {
     }
 
     public void ConnectToSerialBlueToothDevice() {
+        System.out.println("Connecting to device!");
 // Cancel discovery because it will slow down the connection
         myBluetoothAdapter.cancelDiscovery();
         try {
 // Attempt connection to the device through the socket.
             mmSocket.connect();
             Toast.makeText(context, "Connection Made", Toast.LENGTH_LONG).show();
+            System.out.println("Connected to device!");
+            // Start listening to the DE board if it sends a message
+            //listen();
         }
         catch (IOException connectException) {
-            Toast.makeText(context, "Connection Failed", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Connection Failed, retrying", Toast.LENGTH_LONG).show();
+            ConnectToSerialBlueToothDevice();
             return;
         }
 // create the input/output stream and record fact we have made a connection
@@ -355,27 +470,73 @@ public class TodoActivity extends AppCompatActivity {
     }
 
     public void WriteToBTDevice(String message) {
-        String s = new String("\r\n");
-        byte [] msgBuffer = message.getBytes();
-        byte [] newline = s.getBytes();
-        try {
-            mmOutStream.write(msgBuffer) ;
-            mmOutStream.write(newline) ;
-        }
+        byte[] msgBuffer = message.getBytes();
+        try { mmOutStream.write(msgBuffer); }
         catch (IOException e) { }
     }
-    public void bluetoothStuff(View view){
-        String data = "";
 
-        for(String values : taskListBluetooth){
-            data = data + values + "\t" + "n/A" + "\t";
-        }
+    public void sendTasks(View view){
+        String data = "";     // Starting with a tab denotes tasks being sent
 
-        data = data + "\0";
-        Log.i("asdas", data);
-        if(data == "")
-            WriteToBTDevice("\0");
-        else
-            WriteToBTDevice(data);
+        for(String values : taskListBluetooth) data += values;
+
+        data += "\0";
+
+        // Just send an empty list if there are no tasks
+        if(data.equals("\t")) WriteToBTDevice(" \t \t \0");
+        else WriteToBTDevice(data);
+
+        System.out.println("Sent message: " +  data);
     }
+
+    public void listen() {
+        byte[] mmBuffer = new byte[1024];
+        int numBytes; // bytes returned from read()
+        int result = 0;
+
+        // Keep listening to the InputStream until an exception occurs.
+        while (true) {
+            try {
+                // Read from the InputStream.
+                numBytes = mmInStream.read(mmBuffer);
+                // Requesting a new quote
+                if (mmBuffer[0] == 'q')
+                    System.out.println("Sending new quote!!!!");
+                    // Mark a task as complete
+                else if (mmBuffer[0] == 't') {
+                    SQLiteDatabase db = mHelper.getWritableDatabase();
+                    // Delete the item in the database with this exact task description
+                    db.delete(TaskContract.TaskEntry.TABLE,
+                              TaskContract.TaskEntry.COL_TASK_TITLE + " = ?",
+                              new String[]{mmBuffer.toString()});
+                    db.close();
+                    updateUI();
+
+                    sendTasks(null);   // Update the de board's tasks
+                }
+
+                // Send the obtained bytes to the UI activity. TODO: Might not need!
+                /*
+                Message readMsg = mHandler.obtainMessage(
+                        MessageConstants.MESSAGE_READ, numBytes, -1,
+                        mmBuffer);
+                readMsg.sendToTarget();
+                */
+            } catch (IOException e) {
+                Log.d(TAG, "Input stream was disconnected", e);
+                break;
+            }
+        }
+    }
+
+    /*
+     * The function called upon an item being clicked
+     *
+     * Important to realize that it's the text being clicked, not the whole list view
+     * This might necessitate a change when connecting a map to the screen
+     */
+    public void mapMenu (View view) {
+        Toast.makeText(context, "TEST", Toast.LENGTH_SHORT).show();
+    }
+
 }

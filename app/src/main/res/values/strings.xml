@@ -12,7 +12,7 @@
 
     <!-- strings for Auth UI demo activities -->
     <eat-comment />
-    <string name="launch_title">FirebaseUI Auth Demo</string>
+    <string name="launch_title">Signing</string>
     <string name="sign_in">Start</string>
     <string name="green_theme">Green Theme</string>
     <string name="purple_theme">Purple Theme</string>
@@ -160,4 +160,35 @@
     <string name="option_get_place">Get place</string>
     <string name="pick_place">Choose a place</string>
 
+
+
+
+
+        <string name="title_activity_vancouver_navigation">Map</string>
+        <string name="vancouver_not_ready">vancouver not ready</string>
+
+        <string name="stop_animation">\u25A0</string>
+        <string name="animate">Animate</string>
+        <string name="left_arrow">\u2190</string>
+        <string name="up_arrow">\u2191</string>
+        <string name="down_arrow">\u2193</string>
+        <string name="right_arrow">\u2192</string>
+        <string name="zoom_in">+</string>
+        <string name="zoom_out">-</string>
+        <string name="tilt_less">\u2193</string>
+        <string name="tilt_more">\u2191</string>
+        <string name="duration">Custom Duration</string>
+        <string name="go_to_sydney">Go to Sydney</string>
+        <string name="go_to_bondi">Go to Bondi</string>
+        <string name="Normal">Normal</string>
+        <string name="Hybrid">Hybrid</string>
+        <string name="Satellite">Satellite</string>
+        <string name="Terrain">Terrain</string>
+        <string name="traffic">traffic</string>
+        <string name="Set_My_Location">Set My Location</string>
+        <string name="Snapshot">Take Snapshot</string>
+    <string name="textview">testView3</string>
 </resources>
+
+
+
